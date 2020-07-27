@@ -1,18 +1,17 @@
-use piston_window::*;
 use piston_window::types::Color;
+use piston_window::*;
 
 use rand::{thread_rng, Rng};
 
+use crate::draw::{draw_block, draw_rectangle, to_coord};
 use crate::snake::{Direction, Snake};
-use crate::draw::{draw_block, draw_rectangle};
 
 const FOOD_COLOR: Color = [0.80, 0.00, 0.00, 1.0];
-const BORDER_COLOR: Color = [0.00, 0.00, 0.00, 1.0];
+const BORDER_COLOR: Color = [0.10, 0.10, 0.10, 1.0];
 const GAMEOVER_COLOR: Color = [0.90, 0.00, 0.00, 0.5];
 
 const MOVING_PERIOD: f64 = 0.1;
-const RESTART_TIME: f64 = 1.5;
-
+const RESTART_TIME: f64 = 2.0;
 
 pub struct Game {
     snake: Snake,
@@ -42,7 +41,7 @@ impl Game {
             paused: false,
             width,
             height,
-            game_over: false
+            game_over: false,
         }
     }
 
@@ -61,7 +60,7 @@ impl Game {
             Key::Down => Some(Direction::Down),
             Key::Left => Some(Direction::Left),
             Key::Right => Some(Direction::Right),
-            _ => Some(self.snake.head_direction())
+            _ => Some(self.snake.head_direction()),
         };
 
         if dir.unwrap() == self.snake.head_direction().opposite() {
@@ -71,7 +70,7 @@ impl Game {
         self.update_snake(dir);
     }
 
-    pub fn draw(&self, con: &Context, g: &mut G2d) {
+    pub fn draw(&self, con: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
         self.snake.draw(con, g);
 
         if self.food_exists {
@@ -85,6 +84,19 @@ impl Game {
 
         if self.game_over {
             draw_rectangle(GAMEOVER_COLOR, 0, 0, self.width, self.height, con, g);
+            draw_rectangle(BORDER_COLOR, self.width/2 - 6, self.height/2 - 4, 10, 6, con, g);
+
+            let score = format!("Score: {}", self.score);
+
+            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 32)
+                .draw(
+                    &score,
+                    glyphs,
+                    &con.draw_state,
+                    con.transform.trans(to_coord(self.width/2 - 4), to_coord(self.height/2 - 1)),
+                    g,
+                )
+                .unwrap();
         }
     }
 
@@ -153,7 +165,6 @@ impl Game {
             self.check_eating();
         } else {
             self.game_over = true;
-            println!("Game Over. Score is {}", self.score);
         }
         self.waiting_time = 0.0;
     }
@@ -165,5 +176,6 @@ impl Game {
         self.food_x = 6;
         self.food_y = 4;
         self.game_over = false;
+        self.score = 0;
     }
 }

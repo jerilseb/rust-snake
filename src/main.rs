@@ -1,11 +1,11 @@
 mod draw;
-mod snake;
 mod game;
+mod snake;
 
-use piston_window::*;
-use piston_window::types::Color;
 use draw::*;
 use game::Game;
+use piston_window::types::Color;
+use piston_window::*;
 
 const BACK_COLOR: Color = [0.6, 0.6, 0.6, 1.0];
 
@@ -20,6 +20,12 @@ fn main() {
 
     let mut game = Game::new(width, height);
 
+    let assets = find_folder::Search::ParentsThenKids(3, 3)
+        .for_folder("assets")
+        .unwrap();
+    let font = assets.join("OpenSans-Regular.ttf");
+    let mut glyphs = window.load_font(font).unwrap();
+
     while let Some(event) = window.next() {
         if let Some(Button::Keyboard(key)) = event.press_args() {
             game.key_pressed(key);
@@ -27,7 +33,9 @@ fn main() {
 
         window.draw_2d(&event, |context, graphics, _device| {
             clear(BACK_COLOR, graphics);
-            game.draw(&context, graphics);
+            glyphs.factory.encoder.flush(_device);
+
+            game.draw(&context, graphics, &mut glyphs);
         });
 
         event.update(|arg| {
