@@ -5,7 +5,6 @@ mod game;
 use piston_window::*;
 use piston_window::types::Color;
 use draw::*;
-use snake::*;
 use game::Game;
 
 const BACK_COLOR: Color = [0.6, 0.6, 0.6, 1.0];

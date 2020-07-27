@@ -24,6 +24,8 @@ pub struct Game {
     width: i32,
     height: i32,
 
+    score: u32,
+    paused: bool,
     game_over: bool,
     waiting_time: f64,
 }
@@ -36,6 +38,8 @@ impl Game {
             food_exists: true,
             food_x: 6,
             food_y: 4,
+            score: 0,
+            paused: false,
             width,
             height,
             game_over: false
@@ -44,6 +48,11 @@ impl Game {
 
     pub fn key_pressed(&mut self, key: Key) {
         if self.game_over {
+            return;
+        }
+
+        if key == Key::Space {
+            self.paused = !self.paused;
             return;
         }
 
@@ -80,6 +89,10 @@ impl Game {
     }
 
     pub fn update(&mut self, delta_time: f64) {
+        if self.paused {
+            return;
+        }
+
         self.waiting_time += delta_time;
 
         if self.game_over {
@@ -116,9 +129,10 @@ impl Game {
     }
 
     fn check_eating(&mut self) {
-        let (head_x, head_y): (i32, i32) = self.snake.head_position();
+        let (head_x, head_y) = self.snake.head_position();
         if self.food_exists && self.food_x == head_x && self.food_y == head_y {
             self.food_exists = false;
+            self.score += 1;
             self.snake.restore_tail();
         }
     }
@@ -139,6 +153,7 @@ impl Game {
             self.check_eating();
         } else {
             self.game_over = true;
+            println!("Game Over. Score is {}", self.score);
         }
         self.waiting_time = 0.0;
     }

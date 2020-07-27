@@ -3,7 +3,7 @@
 use piston_window::types::Color;
 use piston_window::{rectangle, Context, G2d};
 
-const BLOCK_SIZE: f64 = 15.0;
+const BLOCK_SIZE: f64 = 20.0;
 
 pub fn to_coord(game_coord: i32) -> f64 {
     (game_coord as f64) * BLOCK_SIZE
